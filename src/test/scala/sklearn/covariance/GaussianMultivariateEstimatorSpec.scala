@@ -4,24 +4,27 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.Random
+import sklearn.util.Csv.loadCsv
 
 class GaussianMultivariateEstimatorSpec extends FlatSpec with Matchers {
+
   "Gaussion AD" should "detect outlier" in {
     Random.setSeed(42)
 
-    val featureOne: Seq[Double] = (1 to 1000).map(_ => Random.nextGaussian()) ++ Seq(10.0)
-    val featureTwo: Seq[Double] = (1 to 1000).map(_ => Random.nextGaussian()) ++ Seq(10.0)
+    val features: Seq[Seq[Double]] = loadCsv("anomaly_X.csv", {
+      case first :: second :: Nil => Seq(first.toDouble, second.toDouble)
+    })
 
-    println(featureOne)
+    val labels: Seq[Seq[Double]] = loadCsv("anomaly_y.csv", {
+      case first :: Nil => Seq(first.toDouble)
+    })
 
-    val X = DenseMatrix(
-      featureOne,
-      featureTwo
-    )
+    val X = DenseMatrix(features: _*)
+    val y = DenseVector(labels.flatten: _*)
 
-    val y: DenseVector[Double] = DenseVector(Seq.fill(1000)(0.0) ++ Seq(1.0): _*)
-    println(y)
+    println(X.data.toSeq)
+    println(y.data.toSeq)
 
-    new GaussianMultivariateEstimator().fit(X, Some(y)).predict(X)
+    val prediction: DenseVector[Double] = new GaussianMultivariateEstimator().fit(X, Some(y)).predict(X)
   }
 }

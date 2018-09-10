@@ -5,8 +5,16 @@ import breeze.stats._
 import breeze.numerics._
 import sklearn.{BaseEstimator, EstimatorModel}
 
-case class GaussianMultivariateModel(mean: DenseVector[Double],
-                                     covMatrix: DenseMatrix[Double]) extends EstimatorModel {
+/**
+  * based on
+  * https://github.com/JWarmenhoven/Coursera-Machine-Learning/blob/master/notebooks/Programming%20Exercise%208%20-%20Anomaly%20Detection%20and%20Recommender%20Systems.ipynb
+  * which is in turn based on https://www.coursera.org/learn/machine-learning
+  *
+  * @param mean
+  * @param covMatrix
+  */
+final case class GaussianMultivariateModel(mean: DenseVector[Double],
+                                           covMatrix: DenseMatrix[Double]) extends EstimatorModel {
   lazy val inverseCovMatrix = inv(covMatrix)
 
   override def predict(input: DenseMatrix[Double]): DenseVector[Double] = {
