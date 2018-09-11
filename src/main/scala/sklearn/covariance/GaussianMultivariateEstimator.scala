@@ -1,14 +1,12 @@
 package sklearn.covariance
 
-import breeze.linalg._
+import breeze.linalg.{DenseMatrix, _}
 import breeze.stats._
 import breeze.numerics._
 import sklearn.{BaseEstimator, EstimatorModel}
 
 /**
-  * based on
-  * https://github.com/JWarmenhoven/Coursera-Machine-Learning/blob/master/notebooks/Programming%20Exercise%208%20-%20Anomaly%20Detection%20and%20Recommender%20Systems.ipynb
-  * which is in turn based on https://www.coursera.org/learn/machine-learning
+  * based on the approach in https://www.coursera.org/learn/machine-learning
   *
   * @param mean
   * @param covMatrix
@@ -18,10 +16,24 @@ final case class GaussianMultivariateModel(mean: DenseVector[Double],
   lazy val inverseCovMatrix = inv(covMatrix)
 
   override def predict(input: DenseMatrix[Double]): DenseVector[Double] = {
-    val deviation: DenseMatrix[Double] = (input -:- mean.toDenseMatrix)
+    val m = input.rows.toDouble
+    val n = input.cols
 
-    //(1 / (Math.pow(2* Math.PI, input.cols / 2) * Math.sqrt(det(covMatrix)))) * Math.exp(-0.5 * ())
-    ???
+    val mu: DenseVector[Double] = (sum(input, Axis._0) /:/ m).t
+    val deviationFromMean: DenseMatrix[Double] = input(*, ::) - mu
+
+    val sumOfSquaredDiff: DenseVector[Double] = sum(pow(deviationFromMean, 2.0), Axis._0).t
+    val nEye = DenseMatrix.eye[Double](n)
+
+    val sigma2: DenseMatrix[Double] = nEye(::, *) * (sumOfSquaredDiff / m)
+
+    val sigmaInverse: DenseMatrix[Double] = pinv(sigma2)
+
+    val appliedSigma = (deviationFromMean * sigmaInverse) *:* deviationFromMean
+
+    val sumAppliedSigma = sum(appliedSigma, Axis._1)
+
+    pow(2 * Math.PI, - mu.length / 2.0) * pow(det(sigma2), -0.5) * exp(-0.5 * sumAppliedSigma)
   }
 }
 
