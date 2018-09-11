@@ -3,12 +3,12 @@ package sklearn.covariance
 import breeze.linalg.{DenseMatrix, DenseVector}
 import org.scalatest.{FlatSpec, Matchers}
 
-import sklearn.util.Csv.loadCsv
+import sklearn.util.Csv.loadFile
 
 class GaussianMultivariateEstimatorSpec extends FlatSpec with Matchers {
   "Gaussion AD" should "detect outliers" in {
-    val features: Seq[Array[Double]] = loadCsv("multivar_anomaly_X.csv", _.map(_.toDouble)).toSeq
-    val labels: Seq[Double] = loadCsv("multivar_anomaly_y.csv", _.headOption.map(_.toDouble).getOrElse(0.0)).toSeq
+    val features: Seq[Array[Double]] = loadFile("classpath:multivar_anomaly_X.csv", _.map(_.toDouble)).toSeq
+    val labels: Seq[Double] = loadFile("classpath:multivar_anomaly_y.csv", _.headOption.map(_.toDouble).getOrElse(0.0)).toSeq
 
     val X = DenseMatrix(features: _*)
     val y = DenseVector(labels: _*)
