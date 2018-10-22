@@ -1,6 +1,5 @@
 package sklearn.covariance
 
-import breeze.linalg.{DenseMatrix, DenseVector}
 import org.scalatest.{FlatSpec, Matchers}
 
 import sklearn.util.Csv.loadFile

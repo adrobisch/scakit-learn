@@ -1,12 +1,12 @@
 package sklearn.util
 
-import breeze.linalg.{*, DenseMatrix}
 import com.cibo.evilplot.colors.{Color, HEX}
 import com.cibo.evilplot.geometry.{Drawable, Extent, Group, Line, Rotate}
 import com.cibo.evilplot.numeric.Point
 import com.cibo.evilplot.plot.{Plot, ScatterPlot}
 import com.cibo.evilplot.plot.aesthetics.Theme
 import com.cibo.evilplot.plot.renderers.PointRenderer
+import sklearn.math.Matrix
 
 object Plot {
   private def scatterRenderer(color: Option[Color] = None,
@@ -23,12 +23,12 @@ object Plot {
     }
   }
 
-  def scatter[V](matrix: DenseMatrix[V],
+  def scatter[V](matrix: Matrix[V],
                  plotOptions: Option[Plot => Plot],
                  fillColor: Option[Color] = None,
                  xcol: Int = 0,
                  ycol: Int = 1)(implicit numeric: Numeric[V], theme: Theme): Drawable = {
-    val points = matrix(*, ::).map(row => Point(numeric.toDouble(row(xcol)), numeric.toDouble(row(ycol)))).data
+    val points = matrix.broadcastRows.map(row => Point(numeric.toDouble(row(xcol)), numeric.toDouble(row(ycol)))).asVector.data
     val basePlot = ScatterPlot(points, pointRenderer = Some(scatterRenderer(color = fillColor)))
 
     plotOptions
